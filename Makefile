@@ -1,16 +1,19 @@
+#!/usr/bin/make
+
 CURRENT_DIR=$(shell pwd)
 
-APP=fastapi-test
+APP=$(shell basename ${CURRENT_DIR})
 
-APP_CMD_DIR=fastapi-test/cmd
+APP_CMD_DIR=${CURRENT_DIR}/cmd
 
 REGISTRY=registry.shohr.uz
 TAG=latest
 ENV_TAG=latest
-PROJECT_NAME=project-fastapi
+PROJECT_NAME=fastapi_minikube
+
 
 docker-login:
-	docker login -u asd -p Asdasd ${REGISTRY}
+	docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
 
 build-image:
 	docker build --cache-from ${REGISTRY}/${PROJECT_NAME}/${APP}:${TAG} -t ${REGISTRY}/${PROJECT_NAME}/${APP}:${TAG} .
