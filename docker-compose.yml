@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  db:
+    container_name: ${PROJECT_NAME}_db
+    env_file:
+      - .env
+    image: postgres:13
+    environment:
+        POSTGRES_USER: ${DATABASE_USER}
+        POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+        POSTGRES_DB: ${DATABASE_NAME}
+        POSTGRES_PORT: ${DATABASE_PORT}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    network_mode: host
+
+  web:
+    container_name: ${PROJECT_NAME}_web
+    env_file:
+      - .env
+    build: .
+    command: uvicorn main:app --reload --host 0.0.0.0 --port ${PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - db
+    network_mode: host
+
+
+volumes:
+    db_data: {}
