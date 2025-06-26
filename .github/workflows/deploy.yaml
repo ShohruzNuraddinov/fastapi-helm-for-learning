@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, backend]
+    runs-on: [self-hosted]
 
     env:
       REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
