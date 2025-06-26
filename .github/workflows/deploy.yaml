@@ -6,38 +6,26 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: [self-hosted, backend]
+
+    env:
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      REGISTRY: registry.shohr.uz
+      TAG: ${{ github.run_number }}
+      ENV_TAG: latest
+      PROJECT_NAME: fastapi_minikube
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build and Push Docker Image
-        run: |
-          export CI_PIPELINE_IID=${{ github.run_number }}
-          export CI_PROJECT_NAME=${{ github.event.repository.name }}
-          export CI_PROJECT_NAMESPACE=${{ github.repository_owner }}
-          export CI_REGISTRY=registry.shohr.uz
-          export ENV_TAG=latest
+      - name: Docker login
+        run: make docker-login
 
-          make build-image TAG=$CI_PIPELINE_IID SERVICE_NAME=$CI_PROJECT_NAME PROJECT_NAME=$CI_PROJECT_NAMESPACE REGISTRY=$CI_REGISTRY ENV_TAG=$ENV_TAG
+      - name: Build Docker Image
+        run: make build-image TAG=${{ github.run_number }}
 
-          make push-image TAG=$CI_PIPELINE_IID SERVICE_NAME=$CI_PROJECT_NAME PROJECT_NAME=$CI_PROJECT_NAMESPACE REGISTRY=$CI_REGISTRY ENV_TAG=$ENV_TAG
-
-
-  # restart-socket:
-  #   if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_socket == 'yes'
-  #   needs: deploy
-  #   runs-on: [self-hosted, backend]
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-
-  #     - name: Restart socket
-  #       run: |
-  #         cd /var/www/backend-2.0/socket
-  #         source ../env/bin/activate
-  #         pip install -r requirements.txt
-  #         sudo /bin/systemctl restart backend-socket.service
+      - name: Push Docker Image
+        run: make push-image TAG=${{ github.run_number }}
