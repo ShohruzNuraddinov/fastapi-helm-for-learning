@@ -21,14 +21,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Whoami
-        run: whoami
-
       - name: Docker login
         run: make docker-login
 
-      - name: Build Docker Image
-        run: make build-image TAG=${{ github.run_number }}
+      - name: Build Docker Images
+        run: |
+          make build-image TAG=${{ github.run_number }}
+          make build-image TAG=latest
 
-      - name: Push Docker Image
-        run: make push-image TAG=${{ github.run_number }}
+      - name: Push Docker Images
+        run: |
+          make push-image TAG=${{ github.run_number }}
+          make push-image TAG=latest
