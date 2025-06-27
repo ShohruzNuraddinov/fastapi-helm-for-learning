@@ -5,33 +5,41 @@ on:
     branches:
       - main
 
+env:
+  REGISTRY: registry.shohr.uz
+  PROJECT_NAME: fastapi_minikube
+
 jobs:
   build:
     runs-on: [self-hosted]
-
-    env:
-      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
-      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-      REGISTRY: registry.shohr.uz
-      TAG: ${{ github.run_number }}
-      ENV_TAG: latest
-      PROJECT_NAME: fastapi_minikube
+    
+    outputs:
+      tag: ${{ steps.set-tag.outputs.tag }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set Docker tag
+        id: set-tag
+        run: echo "tag=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
       - name: Docker login
+        env:
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
         run: make docker-login
 
-      - name: Build Docker Images
+      - name: Build Docker images
+        shell: bash
         run: |
-          make build-image TAG=${{ github.run_number }}
+          make build-image TAG=${{ steps.set-tag.outputs.tag }}
           make build-image TAG=latest
 
-      - name: Push Docker Images
+      - name: Push Docker images
+        shell: bash
         run: |
-          make push-image TAG=${{ github.run_number }}
+          make push-image TAG=${{ steps.set-tag.outputs.tag }}
           make push-image TAG=latest
 
   helm:
@@ -42,11 +50,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Helm setup
+      - name: Setup Helm
         uses: azure/setup-helm@v1
         with:
           version: v3.10.0
 
-      - name: Helm upgrade
+      - name: Deploy with Helm
+        shell: bash
         run: |
-          helm upgrade --install fastapi-minikube ./helm --set image.tag=${{ github.run_number }}
+          helm upgrade --install fastapi-minikube ./helm \
+            --set image.tag=${{ needs.build.outputs.tag }}
