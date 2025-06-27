@@ -50,13 +50,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Setup kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Test cluster access
+        run: kubectl get pods -A
+
       - name: Setup Helm
         uses: azure/setup-helm@v1
         with:
           version: v3.10.0
 
-      - name: Deploy with Helm
+      - name: Helm upgrade
         shell: bash
         run: |
           helm upgrade --install fastapi-minikube ./helm \
+            --namespace fastapi \
+            --create-namespace \
+            --atomic \
             --set image.tag=${{ needs.build.outputs.tag }}
