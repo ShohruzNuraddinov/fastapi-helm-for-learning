@@ -61,7 +61,7 @@ env:
   - name: PROJECT_NAME
     value: "fastapi_minikube"
   - name: HOST
-    value: "localhost"
+    value: "0.0.0.0"
   - name: PORT
     value: "8082"
   - name: SECRET_KEY
@@ -84,6 +84,7 @@ env:
       secretKeyRef:
         name: fastapi-minikube-redis-secret
         key: redis_db
+
 
 
 # This is for setting Kubernetes Annotations to a Pod.
