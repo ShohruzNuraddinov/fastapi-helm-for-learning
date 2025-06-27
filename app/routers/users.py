@@ -27,7 +27,9 @@ async def get_all_users(db=Depends(get_session)):
     """
     Get all users.
     """
+    start = time.time()
     result = await user_crud.all(db)
+    print(f"Login time: {time.time() - start:.2f} seconds")
     return result
 
 
