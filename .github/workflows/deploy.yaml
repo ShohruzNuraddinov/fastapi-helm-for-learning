@@ -33,3 +33,20 @@ jobs:
         run: |
           make push-image TAG=${{ github.run_number }}
           make push-image TAG=latest
+
+  helm:
+    runs-on: [self-hosted]
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Helm setup
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.10.0
+
+      - name: Helm upgrade
+        run: |
+          helm upgrade --install fastapi-minikube ./helm --set image.tag=${{ github.run_number }}
