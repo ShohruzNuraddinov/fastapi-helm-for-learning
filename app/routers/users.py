@@ -27,9 +27,7 @@ async def get_all_users(db=Depends(get_session)):
     """
     Get all users.
     """
-    start = time.time()
     result = await user_crud.all(db)
-    print(f"Login time: {time.time() - start:.2f} seconds")
     return result
 
 
@@ -38,14 +36,12 @@ async def login(user: UserLogin, db=Depends(get_session)):
     """
     User login.
     """
-    start = time.time()
     res = await user_crud.get_by_username(user.username, db)
     if not res:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not check_password(user.password, res.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token, refresh_token = Hash.create_tokens({"user_id": res.id})
-    print(f"Login time: {time.time() - start:.2f} seconds")
     return {"message": "Login successful", "user": user.username, "access_token": access_token, "refresh_token": refresh_token}
 
 
