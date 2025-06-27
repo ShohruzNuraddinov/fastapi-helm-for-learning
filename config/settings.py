@@ -26,7 +26,7 @@ ALGORITHM = "HS256"
 
 # Redis
 
-print(os.environ.get("REDIS_CUSTOM_HOST", "localhost"), os.environ.get("REDIS_CUSTOM_PORT", 6379), os.environ.get("REDIS_CUSTOM_DB", 0))
+print(os.environ)
 REDIS_HOST = os.environ.get("REDIS_CUSTOM_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_CUSTOM_PORT", 6379))
 REDIS_DB = int(os.environ.get("REDIS_CUSTOM_DB", 0))
