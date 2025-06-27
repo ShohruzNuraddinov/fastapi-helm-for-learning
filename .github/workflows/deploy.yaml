@@ -61,5 +61,5 @@ jobs:
 
       - name: Deploy with Helm
         run: |
-          helm upgrade --install fastapi-minikube ./helm \
+          helm upgrade --install fastapi-minikube-helm ./helm \
             --set image.tag=${{ github.run_number }}
