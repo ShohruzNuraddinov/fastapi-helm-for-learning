@@ -34,30 +34,16 @@ command:
 
 env:
   - name: DATABASE_HOST
-    valueFrom:
-      secretKeyRef:
-        name: fastapi-minikube-db-secret
-        key: database_host
+    value: postgres-postgresql.default.svc.cluster.local
   - name: DATABASE_PORT
-    valueFrom:
-      secretKeyRef:
-        name: fastapi-minikube-db-secret
-        key: database_port
-  - name: DATABASE_NAME
-    valueFrom:
-      secretKeyRef:
-        name: fastapi-minikube-db-secret
-        key: database_name
+    value: "5432"
   - name: DATABASE_USER
-    valueFrom:
-      secretKeyRef:
-        name: fastapi-minikube-db-secret
-        key: database_user
+    value: postgres
   - name: DATABASE_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: fastapi-minikube-db-secret
-        key: database_password
+        name: postgres-postgresql
+        key: postgres-password
   - name: PROJECT_NAME
     value: "fastapi_minikube"
   - name: HOST
