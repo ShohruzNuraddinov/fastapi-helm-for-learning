@@ -13,4 +13,4 @@ RUN --mount=type=cache,target=/root/.cache \
     pip install -r requirments.txt
 
 COPY . .
-EXPOSE 8081
+EXPOSE 8082
