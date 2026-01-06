@@ -29,6 +29,12 @@ jobs:
           REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
         run: make docker-login
+      - name: Debug - Show working directory
+        run: |
+          pwd
+          ls -la
+          echo "Current user: $(whoami)"
+          echo "Groups: $(groups)"
 
       - name: Build Docker images
         shell: bash
