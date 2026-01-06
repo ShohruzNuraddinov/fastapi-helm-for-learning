@@ -9,7 +9,7 @@ APP_CMD_DIR=${CURRENT_DIR}/cmd
 REGISTRY=registry.shohr.uz
 TAG=latest
 ENV_TAG=latest
-PROJECT_NAME=fastapi_minikube
+PROJECT_NAME=fastapi_k8s
 
 
 docker-login:
