@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: registry.shohr.uz
-  PROJECT_NAME: fastapi_minikube
+  PROJECT_NAME: fastapi_k8s
 
 jobs:
   build:
@@ -42,23 +42,23 @@ jobs:
           make push-image TAG=${{ steps.set-tag.outputs.tag }}
           make push-image TAG=latest
 
-  deploy:
-    runs-on: [self-hosted]
-    needs: build
+  # deploy:
+  #   runs-on: [self-hosted]
+  #   needs: build
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Set up kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
-          chmod 600 ~/.kube/config
+  #     - name: Set up kubeconfig
+  #       run: |
+  #         mkdir -p ~/.kube
+  #         echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+  #         chmod 600 ~/.kube/config
 
-      - name: Verify cluster access
-        run: kubectl get nodes
+  #     - name: Verify cluster access
+  #       run: kubectl get nodes
 
-      - name: Deploy with Helm
-        run: |
-          helm upgrade --install fastapi-minikube-helm ./helm
+  #     - name: Deploy with Helm
+  #       run: |
+  #         helm upgrade --install fastapi-minikube-helm ./helm
