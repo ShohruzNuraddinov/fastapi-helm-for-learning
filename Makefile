@@ -13,7 +13,7 @@ PROJECT_NAME=fastapi_minikube
 
 
 docker-login:
-	docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+	docker login -u ${REGISTRY_USER} -p '${REGISTRY_PASSWORD}' ${REGISTRY}
 
 build-image:
 	docker build --cache-from ${REGISTRY}/${PROJECT_NAME}/${APP}:${TAG} -t ${REGISTRY}/${PROJECT_NAME}/${APP}:${TAG} .
