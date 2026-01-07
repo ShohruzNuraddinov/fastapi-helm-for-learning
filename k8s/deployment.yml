@@ -15,6 +15,15 @@ spec:
       labels:
         app: fastapi-app
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - worker-1
       containers:
       - name: registry.shohr.uz/fastapi_k8s/fastapi-helm-for-learning
         image: registry.shohr.uz/fastapi_k8s/fastapi-helm-for-learning:latest
@@ -32,15 +41,3 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
-        # livenessProbe:
-        #   httpGet:
-        #     path: /health
-        #     port: 8000
-        #   initialDelaySeconds: 10
-        #   periodSeconds: 10
-        # readinessProbe:
-        #   httpGet:
-        #     path: /health
-        #     port: 8000
-        #   initialDelaySeconds: 5
-        #   periodSeconds: 5
