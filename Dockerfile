@@ -28,6 +28,9 @@ RUN apk add --no-cache libpq
 
 WORKDIR /app
 
+COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
 
 # Copy application code
 COPY . .
@@ -37,5 +40,3 @@ RUN find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
     find . -type f -name "*.pyc" -delete && \
     find . -type f -name "*.pyo" -delete && \
     rm -rf .git .gitignore .dockerignore README.md tests/ *.md 2>/dev/null || true
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8082"]
