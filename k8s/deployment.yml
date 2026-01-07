@@ -25,7 +25,7 @@ spec:
                 values:
                   - worker-1
       containers:
-      - name: registry.shohr.uz/fastapi_k8s/fastapi-helm-for-learning
+      - name: fastapi_k8s
         image: registry.shohr.uz/fastapi_k8s/fastapi-helm-for-learning:latest
         imagePullPolicy: IfNotPresent
         ports:
