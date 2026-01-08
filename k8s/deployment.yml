@@ -30,6 +30,13 @@ spec:
       - name: fastapi
         image: registry.shohr.uz/fastapi_k8s/fastapi-helm-for-learning:latest
         imagePullPolicy: IfNotPresent
+        command:
+        - uvicorn
+        - main:app
+        - --host
+        - "0.0.0.0"
+        - --port
+        - "8082"
         ports:
         - containerPort: 8082
           name: http
