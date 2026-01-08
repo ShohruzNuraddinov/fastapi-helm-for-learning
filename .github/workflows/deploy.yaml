@@ -8,6 +8,9 @@ on:
 env:
   REGISTRY: registry.shohr.uz
   PROJECT_NAME: fastapi_k8s
+  IMAGE_NAME: fastapi-helm-for-learning
+  NAMESPACE: default
+  DEPLOYMENT_NAME: fastapi-app-deployment
 
 jobs:
   build:
@@ -48,23 +51,14 @@ jobs:
           make push-image TAG=${{ steps.set-tag.outputs.tag }}
           make push-image TAG=latest
 
-  # deploy:
-  #   runs-on: [self-hosted]
-  #   needs: build
+  deploy:
+    runs-on: [master-node]
+    needs: build
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: Set up kubeconfig
-  #       run: |
-  #         mkdir -p ~/.kube
-  #         echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
-  #         chmod 600 ~/.kube/config
-
-  #     - name: Verify cluster access
-  #       run: kubectl get nodes
-
-  #     - name: Deploy with Helm
-  #       run: |
-  #         helm upgrade --install fastapi-minikube-helm ./helm
+      - name: Restart k8s deployment
+        run: |
+          kubectl rollout restart deployment ${DEPLOYMENT_NAME}
