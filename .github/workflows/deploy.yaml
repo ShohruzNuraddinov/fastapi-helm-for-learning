@@ -11,11 +11,12 @@ env:
   IMAGE_NAME: fastapi-helm-for-learning
   NAMESPACE: default
   DEPLOYMENT_NAME: fastapi-app-deployment
+  CONTAINER_NAME: fastapi  # container name in the deployment
 
 jobs:
   build:
     runs-on: [master-node]
-    
+
     outputs:
       tag: ${{ steps.set-tag.outputs.tag }}
 
@@ -32,24 +33,14 @@ jobs:
           REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
         run: make docker-login
-      - name: Debug - Show working directory
-        run: |
-          pwd
-          ls -la
-          echo "Current user: $(whoami)"
-          echo "Groups: $(groups)"
 
-      - name: Build Docker images
+      - name: Build & push Docker images
         shell: bash
         run: |
-          make build-image TAG=${{ steps.set-tag.outputs.tag }}
-          make build-image TAG=latest
-
-      - name: Push Docker images
-        shell: bash
-        run: |
-          make push-image TAG=${{ steps.set-tag.outputs.tag }}
-          make push-image TAG=latest
+          for TAG in ${{ steps.set-tag.outputs.tag }} latest; do
+            make build-image TAG=$TAG
+            make push-image TAG=$TAG
+          done
 
   deploy:
     runs-on: [master-node]
@@ -59,6 +50,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Restart k8s deployment
+      - name: Update deployment image
         run: |
-          kubectl rollout restart deployment ${DEPLOYMENT_NAME}
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+            ${{ env.CONTAINER_NAME }}=${{ env.REGISTRY }}/${{ env.PROJECT_NAME }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} \
+            -n ${{ env.NAMESPACE }}
+
+      - name: Wait for rollout to complete
+        run: |
+          kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }}
