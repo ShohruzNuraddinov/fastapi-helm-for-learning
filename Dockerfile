@@ -1,46 +1,64 @@
 # syntax=docker/dockerfile:1.4
-FROM python:3.9-alpine AS builder
+
+########################
+# Builder stage
+########################
+FROM python:3.9-slim AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
 
 # Install build dependencies
-RUN apk add --no-cache --virtual .build-deps \
-    gcc \
-    musl-dev \
-    libpq-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
-
-# Copy only requirements first for better caching
+# Copy requirements first for caching
 COPY requirments.txt .
 
-# Install Python dependencies
-RUN --mount=type=cache,target=/root/.cache \
-    pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --no-compile -r requirments.txt && \
-    find /usr/local/lib/python3.9 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.9 -type d -name "*.dist-info" -exec rm -rf {}/direct_url.json {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.9 -name "*.so" -exec strip {} + 2>/dev/null || true
+# Install deps into wheelhouse
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirments.txt
 
+
+########################
 # Final stage
-FROM python:3.9-alpine
+########################
+FROM python:3.9-slim
 
-# Install only runtime dependencies
-RUN apk add --no-cache libpq
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Install runtime deps only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl \
+    netcat \
+    && rm -rf /var/lib/apt/lists/*
 
+# Copy wheels and install
+COPY --from=builder /wheels /wheels
+RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 
-# Copy application code
+# Copy app
 COPY . .
 
-# Remove unnecessary files
+# Cleanup
 RUN find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
     find . -type f -name "*.pyc" -delete && \
     find . -type f -name "*.pyo" -delete && \
     rm -rf .git .gitignore .dockerignore README.md tests/ *.md 2>/dev/null || true
 
-
+# Migrate script
 COPY migrate.sh /app/migrate.sh
 RUN chmod +x /app/migrate.sh
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/migrate.sh"]
