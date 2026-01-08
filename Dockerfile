@@ -40,3 +40,7 @@ RUN find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
     find . -type f -name "*.pyc" -delete && \
     find . -type f -name "*.pyo" -delete && \
     rm -rf .git .gitignore .dockerignore README.md tests/ *.md 2>/dev/null || true
+
+
+COPY migrate.sh /app/migrate.sh
+RUN chmod +x /app/migrate.sh
