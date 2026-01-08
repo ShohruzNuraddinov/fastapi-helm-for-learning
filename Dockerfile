@@ -56,8 +56,6 @@ RUN find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
 
 # Migrate script
 COPY migrate.sh /app/migrate.sh
-RUN chmod +x /app/migrate.sh
+RUN chmod +x /app/migrate.sh && /app/migrate.sh
 
 EXPOSE 8080
-
-ENTRYPOINT ["/app/migrate.sh"]
