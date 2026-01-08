@@ -71,9 +71,9 @@ async def register(user: UserLogin, db=Depends(get_session)):
     return {"message": "User created successfully", "user": user.username, "access_token": access_token, "refresh_token": refresh_token}
 
 
-# @router.get("/test/")
-# async def get_test():
-#     """
-#     Get all users.
-#     """
-#     return [{"id": 1, "username": "test1"}, {"id": 2, "username": "test2"}]
+@router.get("/test/")
+async def get_test():
+    """
+    Get all users.
+    """
+    return [{"id": 1, "username": "test1"}, {"id": 2, "username": "test2"}]
