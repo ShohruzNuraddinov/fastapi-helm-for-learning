@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fastapi-app
+  name: fastapi-app-deployment
   namespace: default
   labels:
-    app: fastapi-app
+    app: fastapi-app-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: fastapi-app
+      app: fastapi-app-deployment
   template:
     metadata:
       labels:
-        app: fastapi-app
+        app: fastapi-app-deployment
     spec:
       imagePullSecrets:
       - name: registry-shohr-cred
